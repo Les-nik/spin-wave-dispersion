@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "swdispersion"
+version = "0.1.0"
+description = "Spin-wave dispersion and mode profiles from MuMax3 simulations"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Nikodem Leśniewski" }]
+requires-python = ">=3.9"
+dependencies = ["numpy>=1.21", "matplotlib>=3.5"]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
