@@ -16,13 +16,15 @@ def plot_dispersion(
     kmax: float | None = None,
     log: bool = True,
     cmap: str = "magma",
-    vmin_ratio: float = 1e-3,
+    vmin_ratio: float = 1e-2,
 ):
     """Show the dispersion as an image: k in rad/um on x, f in GHz on y.
 
     ``log=True`` uses a logarithmic colour scale, which shows weak higher
     modes next to the strong fundamental one. ``vmin_ratio`` sets the lowest
-    colour relative to the maximum.
+    colour relative to the maximum. With the default 1e-2, everything more
+    than 100 times weaker than the strongest mode is drawn black, which hides
+    the numerical background.
     """
     if ax is None:
         _, ax = plt.subplots(figsize=(5, 4))
