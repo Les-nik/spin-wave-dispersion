@@ -152,6 +152,8 @@ def _check_sampling(series: TimeSeries, tolerance: float = 0.05) -> None:
     deviation = np.max(np.abs(steps - series.dt)) / series.dt
     if deviation > tolerance:
         warnings.warn(
-            f"time steps vary by up to {deviation:.0%} of dt; "
-            "check for missing snapshots"
+            f"time steps vary by up to {deviation:.0%} of dt. Either snapshots "
+            "are missing, or the solver step is not much smaller than the "
+            "sampling interval (MuMax3 saves at the first step after each "
+            "interval); MaxDt = t_sampl / 10 in the .mx3 script avoids the latter"
         )

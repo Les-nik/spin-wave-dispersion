@@ -55,5 +55,9 @@ B_ext.add(mask, 1e-3*sinc(2*pi*f_cut*(t-t0)))
 // ---- Record ----------------------------------------------------------------
 // 1000 samples give a frequency resolution of 1 / (1000 t_sampl) ~ 88 MHz.
 // Output size: Nx*Ny*Nz*3 floats * 4 B * 1000 files ~ 50 MB.
+// MuMax3 saves at the first solver step after each interval. With the default
+// adaptive step (~5 ps here) the spacing between files jitters by about 20 %.
+// Uncomment the next line for evenly spaced files (the run gets slower).
+// MaxDt = t_sampl / 10
 autosave(m, t_sampl)
 run(1000 * t_sampl)

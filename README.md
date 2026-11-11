@@ -5,12 +5,13 @@
 Python tools for turning a [MuMax3](https://mumax.github.io/) simulation into a spin-wave
 dispersion relation f(k) and spatial mode profiles.
 
-![Dispersion computed from synthetic data, with the analytical curve on top](docs/figures/synthetic_dispersion.png)
+![Dispersion of a 30 nm film simulated in MuMax3](docs/figures/film_dispersion.png)
 
-*Dispersion of the lowest mode of a 30 nm permalloy-like film in the Damon-Eshbach
-geometry. The image is computed by the package from a folder of OVF files; the dashed
-line is the Kalinikos-Slavin formula used to generate those files
-([`examples/synthetic_demo.py`](examples/synthetic_demo.py)).*
+*Damon-Eshbach dispersion of a 30 nm permalloy-like film at 50 mT, from
+[`examples/film_dispersion.mx3`](examples/film_dispersion.mx3) (294 snapshots, 1024 cells of
+10 nm). Dashed: the Kalinikos-Slavin formula. Dotted: the same formula with the
+finite-difference exchange term that MuMax3 uses, which accounts for the lower frequencies
+above about 80 rad/um ([`examples/plot_film_run.py`](examples/plot_film_run.py)).*
 
 ## What it does
 
@@ -77,7 +78,9 @@ profile = mode_profile(series.data, series.dt, frequency=12e9)  # complex, shape
 ```
 
 No GPU? `python examples/synthetic_demo.py` builds a fake MuMax3 output folder with a known
-dispersion and runs the whole pipeline on it.
+dispersion and runs the whole pipeline on it:
+
+![Dispersion computed from synthetic data](docs/figures/synthetic_dispersion.png)
 
 ## Details
 
@@ -88,9 +91,19 @@ Damon-Eshbach surface modes) the two directions get swapped. Here time is transf
 `exp(+i 2 pi f t)`, so +k always means propagation along +x. A test checks this.
 
 **Time step.** MuMax3 writes an autosave file at the first solver step after each sampling
-interval, so the spacing between files jitters slightly. `TimeSeries.dt` is the slope of a
-linear fit to all snapshot times, and `load_series` warns if the spacing varies by more than
-5 %, which usually means a missing file.
+interval. In the example run the adaptive step is about 5 ps and the interval 11.4 ps, so the
+spacing between files varies from 9.4 to 14.1 ps. `TimeSeries.dt` is the slope of a linear fit
+to all snapshot times, and `load_series` warns when the spacing varies by more than 5 %. The
+FFT still finds the branches at the right frequencies, but the jitter raises the background;
+`MaxDt = t_sampl / 10` in the script keeps the files evenly spaced. (I also tried a direct
+Fourier sum over the real times: it gave the same peaks and a higher background, because
+irregular sampling creates its own aliases.)
+
+**Discrete exchange.** MuMax3 evaluates the exchange field with finite differences, so a wave
+with wavenumber k feels an exchange term proportional to (2 sin(k a/2)/a)^2 instead of k^2,
+where a is the cell size. `kalinikos_slavin(..., cell_size=a)` uses the same form. With 10 nm
+cells the continuous formula is about 1 GHz too high at 100 rad/um, which is easy to mistake
+for a physical effect.
 
 **Window and static part.** Before the FFT the time average of every cell is subtracted (this
 removes the large f = 0 peak from the static magnetization) and a Hann window is applied
@@ -113,7 +126,7 @@ pytest
 
 The tests cover OVF round trips in all three data formats, the axis order, the k sign for
 waves moving in both directions, mode profiles of a standing wave, time-step fitting with
-jitter, and limits of the analytical formula.
+jitter, and limits of the analytical formula (including the discrete exchange term).
 
 ## Background
 

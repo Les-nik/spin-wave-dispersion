@@ -22,6 +22,11 @@ B_eff is the internal field along M: the applied field plus anisotropy and
 demagnetizing contributions that are not already in F. For a film with
 perpendicular anisotropy K_u and in-plane M, B_eff = B_0 - 2 K_u / M_s is a
 first approximation.
+
+MuMax3 computes the exchange field with finite differences on cells of size
+a, which replaces k^2 in the exchange term by (2 sin(k a / 2) / a)^2. Pass
+``cell_size`` to use the same discrete form; the difference reaches about
+1 GHz at k a = 1 for permalloy.
 """
 
 from __future__ import annotations
@@ -41,18 +46,21 @@ def kalinikos_slavin(
     theta: float = np.pi / 2,
     phi: float = np.pi / 2,
     gamma: float = GAMMA_E,
+    cell_size: float | None = None,
 ) -> np.ndarray:
     """Frequency in Hz of the lowest thickness mode for wavenumbers ``k`` (rad/m).
 
     Units: B_eff in T, Ms in A/m, Aex in J/m, thickness in m.
     Negative k gives the same frequency as +k (the formula is reciprocal).
+    ``cell_size`` (m) switches to the discrete exchange term used by MuMax3.
     """
     k = np.abs(np.asarray(k, dtype=float))
     # Avoid 0/0 at k = 0; P -> 0 there.
     kd = np.where(k == 0, 1e-12, k * thickness)
     P = 1 - (1 - np.exp(-kd)) / kd
 
-    omega_0 = gamma * (B_eff + 2 * Aex * k**2 / Ms)
+    k2_exchange = k**2 if cell_size is None else (2 * np.sin(k * cell_size / 2) / cell_size) ** 2
+    omega_0 = gamma * (B_eff + 2 * Aex * k2_exchange / Ms)
     omega_M = gamma * MU0 * Ms
     F = P + np.sin(theta) ** 2 * (
         1 - P * (1 + np.cos(phi) ** 2)

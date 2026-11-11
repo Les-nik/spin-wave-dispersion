@@ -76,3 +76,13 @@ def test_theory_geometries():
     bv = kalinikos_slavin(k, *args, phi=0.0)
     assert de[1] > de[0]
     assert bv[1] < bv[0]
+
+
+def test_theory_discrete_exchange():
+    """Finite-difference exchange lowers the frequency at large k and vanishes as k a -> 0."""
+    args = (0.05, 800e3, 13e-12, 30e-9)
+    k = np.array([1e6, 1e8])
+    cont = kalinikos_slavin(k, *args)
+    disc = kalinikos_slavin(k, *args, cell_size=10e-9)
+    assert disc[0] == pytest.approx(cont[0], rel=1e-4)
+    assert disc[1] < cont[1]
