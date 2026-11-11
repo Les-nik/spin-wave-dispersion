@@ -42,7 +42,7 @@ t0 := t + 10 / f_cut     // pulse centre, late enough that the sinc starts near 
 // index2coord are measured from the centre of the grid.
 mask := newVectorMask(Nx, Ny, Nz)
 for i := 0; i < Nx; i++ {
-	x := index2coord(i, 0, 0).X()
+	x := index2coord(i, 0, 0).x()
 	for j := 0; j < Ny; j++ {
 		for k := 0; k < Nz; k++ {
 			mask.setVector(i, j, k, vector(0, 0, sinc(k_cut*x)))
