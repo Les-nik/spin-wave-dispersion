@@ -1,5 +1,7 @@
 # spin-wave-dispersion
 
+[![tests](https://github.com/Les-nik/spin-wave-dispersion/actions/workflows/tests.yml/badge.svg)](https://github.com/Les-nik/spin-wave-dispersion/actions/workflows/tests.yml)
+
 Python tools for turning a [MuMax3](https://mumax.github.io/) simulation into a spin-wave
 dispersion relation f(k) and spatial mode profiles.
 
